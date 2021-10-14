@@ -8,7 +8,7 @@ Most of them have some form of output or simple UI to know it is working.
 
 > language.php
 
-This is a quick script to convert *arr app hard coded strings to a localization file. It expects the*arr app to already have the localization framework in place.
+This is a quick script to convert \*arr app hard coded strings to a localization file. It expects the \*arr app to already have the localization framework in place.
 
 ## *arr language key issues
 
