@@ -1,2 +1,53 @@
-# random
-A place to dump random quickly thrown together scripts and such
+# Random stuff
+
+A place to dump random quickly thrown together scripts and such. Typically something is needed to test or make some one off changes, these things where created to do that. Most of this is thrown together in a couple hours and never really optimized since they are `throw away` scripts that i made for someone or to solve a time consuming task. With that said, none of this stuff is used in a production environment so they may require some adjusting to do so if you want.
+
+Most of them have some form of output or simple UI to know it is working.
+
+## *arr language localization
+
+> language.php
+
+This is a quick script to convert *arr app hard coded strings to a localization file. It expects the*arr app to already have the localization framework in place.
+
+## *arr language key issues
+
+> languageCleanup.php
+
+This script will look for any defined language keys in the source and display which are missing a translation in the english file and it will look in the english file to see which defined keys are not in the source
+
+## *arr os change database path tool
+
+> sqlite/*
+
+This script will allow you to pick a radarr.db file and adjust all the paths from one os to another
+
+## *arr cache compare tool
+
+> cache.php
+
+This one actually relies on functions from Notifiarr so it would take some tweaking to get working stand alone but is not hard at all to do. Replacing the functions that fetch the meta would be about all it takes
+
+## *arr endpoint testing
+
+> endpointTest.php
+
+Nothing special, just a simple way to test out endpoint responses. Was made/used when adding the jackett importer to radarr (scraped later) and then when setting up the sync code for prowlarr
+
+## prowlarr indexer conversion
+
+> indexers/*
+
+This will take a folder full of Jackett c# indexers and convert them to the base usage for Prowlarr
+
+## jackett + qbt cross seed
+
+> xseed/*
+
+This will connect to your qbt and jackett to try and reach out to the configured sites and grab .torrent files to try and cross seed them. Was made in an hour or two as a poc for the code. Super simple, seems to work during basic testing. Ya know, to easily help seed those linux iso's
+
+## torrent creator
+
+> torrentCreator/*
+
+This was something thrown together for someone who asked if they could pick a directory on their network and have it create a .torrent file, upload thumbnail images, create a copy/paste template, etc for later usage. Ya know, to easily upload those linux iso's
