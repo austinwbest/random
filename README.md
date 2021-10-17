@@ -4,6 +4,12 @@ A place to dump random quickly thrown together scripts and such. Typically somet
 
 Most of them have some form of output or simple UI to know it is working.
 
+## Radarr branch comparing
+
+> branches.php
+
+Simple script that currently depends on a Notifiarr session to work but remove the require dependancies and it should work fine stand alone. It will compatre the amount of migrations and the language ids across the 3 brances that Radarr uses (master, develop, nightly) and show you if you can swap between them. A yes in both columns means you can hop between those branches without an issue.
+
 ## *arr language localization
 
 > language.php
