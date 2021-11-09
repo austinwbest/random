@@ -6,34 +6,63 @@
 ----------------------------------
 */
 
-require 'loader.php';
-require 'includes/shared.php';
+define('GITHUB_API_KEY', '');
 
-$develop = curl('https://api.github.com/repos/Radarr/Radarr/tags?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
-$developVersion = $develop['response'][0]['name'];
+$memcache = new Memcached();
+$memcache->addServer('localhost', 11211) or die('Cache connection failure');
+$memcached = $memcache->get('radarr-branches');
 
-$master = curl('https://api.github.com/repos/Radarr/Radarr/tags?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
-$masterVersion = $master['response'][0]['name'];
+if (!$memcached) {
+    $develop = curl('https://api.github.com/repos/Radarr/Radarr/tags?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $developVersion = $develop['response'][0]['name'];
 
-//-- MIGRATIONS
-$contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
-$nightlyMigrations = $contents['response'];
+    $master = curl('https://api.github.com/repos/Radarr/Radarr/tags?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $masterVersion = $master['response'][0]['name'];
 
-$contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
-$developMigrations = $contents['response'];
+    //-- MIGRATIONS
+    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $nightlyMigrations = $contents['response'];
 
-$contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
-$masterMigrations = $contents['response'];
+    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $developMigrations = $contents['response'];
 
-//-- LANGUAGES
-$contents = curl('https://raw.githubusercontent.com/Radarr/Radarr/develop/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
-$nightlyLanguage = $contents['response'];
+    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $masterMigrations = $contents['response'];
 
-$contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Languages/Language.cs?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
-$developLanguage = base64_decode($contents['response']['content']);
+    //-- LANGUAGES
+    $contents = curl('https://raw.githubusercontent.com/Radarr/Radarr/develop/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $nightlyLanguage = $contents['response'];
 
-$contents = curl('https://raw.githubusercontent.com/Radarr/Radarr/master/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY));
-$masterLanguage = $contents['response'];
+    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Languages/Language.cs?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $developLanguage = base64_decode($contents['response']['content']);
+
+    $contents = curl('https://raw.githubusercontent.com/Radarr/Radarr/master/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY));
+    $masterLanguage = $contents['response'];
+
+    $cache['developVersion']    = $developVersion;
+    $cache['masterVersion']     = $masterVersion;
+    $cache['nightlyMigrations'] = $nightlyMigrations;
+    $cache['developMigrations'] = $developMigrations;
+    $cache['masterMigrations']  = $masterMigrations;
+    $cache['nightlyLanguage']   = $nightlyLanguage;
+    $cache['developLanguage']   = $developLanguage;
+    $cache['masterLanguage']    = $masterLanguage;
+
+    $memcache->set('radarr-branches', $cache, 43200); //-- 12 HOUR CACHE
+    
+    $branches['cache'] = 'false';
+} else {
+    $developVersion     = $memcached['developVersion'];
+    $masterVersion      = $memcached['masterVersion'];
+    $nightlyMigrations  = $memcached['nightlyMigrations'];
+    $developMigrations  = $memcached['developMigrations'];
+    $masterMigrations   = $memcached['masterMigrations'];
+    $nightlyLanguage    = $memcached['nightlyLanguage'];
+    $developLanguage    = $memcached['developLanguage'];
+    $masterLanguage     = $memcached['masterLanguage'];
+    
+    $branches['cache'] = 'true';
+}
 
 $langRegex = '/Language\(\\d+\,/';
 preg_match_all($langRegex, $nightlyLanguage, $matches);
@@ -52,60 +81,74 @@ foreach ($matches[0] as $match)
 	$masterLanguageId = preg_replace('/[^0-9]/', '', $match);
 }
 
-echo '<table style="max-width: 50%;" class="table table-striped table-bordered">';
-echo '	<tr>';
-echo '		<td colspan="5" align="center">Branch Hopping Allowed</td>';
-echo '	</tr>';
-echo '	<tr>';
-echo '		<td align="center" style="font-weight: bold;">Currently on</td>';
-echo '		<td align="center" style="font-weight: bold;">Jumping to</td>';
-echo '		<td align="center" style="font-weight: bold;">Reverting back to</td>';
-echo '		<td align="center" style="font-weight: bold;">Migration</td>';
-echo '		<td align="center" style="font-weight: bold;">Language</td>';
-echo '	</tr>';
-echo '	<tr>';
-echo '		<td>Master</td>';
-echo '		<td>Develop</td>';
-echo '		<td>Master</td>';
-echo '		<td>'. (count($developMigrations) == count($masterMigrations) ? 'Yes' : 'No') .'</td>';
-echo '		<td>'. ($developLanguageId == $masterLanguageId ? 'Yes' : 'No') .'</td>';
-echo '	</tr>';
-echo '	<tr>';
-echo '		<td>Master</td>';
-echo '		<td>Nightly</td>';
-echo '		<td>Master</td>';
-echo '		<td>'. (count($nightlyMigrations) == count($masterMigrations) ? 'Yes' : 'No') .'</td>';
-echo '		<td>'. ($masterLanguageId == $nightlyLanguageId ? 'Yes' : 'No') .'</td>';
-echo '	</tr>';
-echo '	<tr>';
-echo '		<td>Develop</td>';
-echo '		<td>Master</td>';
-echo '		<td>Develop</td>';
-echo '		<td>'. (count($developMigrations) == count($masterMigrations) ? 'Yes' : 'No') .'</td>';
-echo '		<td>'. ($developLanguageId == $masterLanguageId ? 'Yes' : 'No') .'</td>';
-echo '	</tr>';
-echo '	<tr>';
-echo '		<td>Develop</td>';
-echo '		<td>Nightly</td>';
-echo '		<td>Develop</td>';
-echo '		<td>'. (count($nightlyMigrations) == count($developMigrations) ? 'Yes' : 'No') .'</td>';
-echo '		<td>'. ($nightlyLanguageId == $developLanguageId ? 'Yes' : 'No') .'</td>';
-echo '	</tr>';
-echo '	<tr>';
-echo '		<td>Nightly</td>';
-echo '		<td>Master</td>';
-echo '		<td>Nightly</td>';
-echo '		<td>'. (count($nightlyMigrations) == count($masterMigrations) ? 'Yes' : 'No') .'</td>';
-echo '		<td>'. ($nightlyLanguageId == $masterLanguageId ? 'Yes' : 'No') .'</td>';
-echo '	</tr>';
-echo '	<tr>';
-echo '		<td>Nightly</td>';
-echo '		<td>Develop</td>';
-echo '		<td>Nightly</td>';
-echo '		<td>'. (count($nightlyMigrations) == count($developMigrations) ? 'Yes' : 'No') .'</td>';
-echo '		<td>'. ($nightlyLanguageId == $developLanguageId ? 'Yes' : 'No') .'</td>';
-echo '	</tr>';
-echo '</table>';
+$branches['branchJumping']['master-develop'] = array('from'       => 'master', 
+                                                     'to'         => 'develop', 
+                                                     'back'       => (count($developMigrations) == count($masterMigrations) && $developLanguageId == $masterLanguageId) ? 'yes' : 'no',
+                                                     'conflicts'  => array('migration'    => count($developMigrations) == count($masterMigrations) ? 'no' : 'yes',
+                                                                           'language'     => $developLanguageId == $masterLanguageId ? 'no' : 'yes'
+                                                                          )
+                                                    );
 
-require 'includes/footer.php';
-?>
+$branches['branchJumping']['master-nightly'] = array('from'       => 'master', 
+                                                     'to'         => 'nightly', 
+                                                     'back'       => (count($nightlyMigrations) == count($masterMigrations) && $nightlyLanguageId == $masterLanguageId) ? 'yes' : 'no',
+                                                     'conflicts'  => array('migration'    => count($nightlyMigrations) == count($masterMigrations) ? 'no' : 'yes',
+                                                                           'language'     => $nightlyLanguageId == $masterLanguageId ? 'no' : 'yes'
+                                                                          )
+                                                    );
+
+$branches['branchJumping']['develop-nightly'] = array('from'       => 'develop', 
+                                                      'to'         => 'nightly', 
+                                                      'back'       => (count($developMigrations) == count($nightlyMigrations) && $developLanguageId == $nightlyLanguageId) ? 'yes' : 'no',
+                                                      'conflicts'  => array('migration'    => count($developMigrations) == count($nightlyMigrations) ? 'no' : 'yes',
+                                                                            'language'     => $developLanguageId == $nightlyLanguageId ? 'no' : 'yes'
+                                                                           )
+                                                    );
+
+$return = json_encode($branches, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+header('Content-Type: application/json');
+echo $return;
+
+function curl($url, $headers = false, $method = false, $payload = false)
+{
+    $curlHeaders = array('user-agent: Notifiarr');
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    switch ($method) {
+        case 'DELETE':
+        case 'PATCH':
+        case 'PUT':
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+            break;
+        case 'POST':
+            curl_setopt($ch, CURLOPT_POST, true);
+            break;
+    }
+
+    if ($headers) {
+        foreach ($headers as $header) {
+            $curlHeaders[] = $header;
+        }
+    }
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $curlHeaders);
+
+    if ($payload) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    }
+
+    $response       = curl_exec($ch);
+    $response       = (!empty(json_decode($response, true))) ? json_decode($response, true) : $response;
+    $error          = json_decode(curl_error($ch), true);
+    $code           = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    foreach ($curlHeaders as $header) {
+        $cleanedHeaders[] = $header;
+    }
+
+    return array('url' => $url, 'method' => $method, 'headers' => $cleanedHeaders, 'payload' => $payload, 'response' => $response, 'error' => $error, 'code' => $code);
+}
