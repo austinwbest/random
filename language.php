@@ -25,18 +25,21 @@ $startTime = microtime(true);
 */
 
 //-- PATHS
-define('RADARR_BACKEND_ROOT', 'C:\\Repositories\\Radarr-Fork\\src');
-define('RADARR_FRONTEND_ROOT', 'C:\\Repositories\\Radarr-Fork\\frontend\\src');
-define('RADARR_LANGUAGE', 'C:\\Repositories\\Radarr-Fork\\src\\NzbDrone.Core\\Localization\\Core\\en.json');
-define('LIDARR_BACKEND_ROOT', 'C:\\Repositories\\Lidarr-Fork\\src');
-define('LIDARR_FRONTEND_ROOT', 'C:\\Repositories\\Lidarr-Fork\\frontend\\src');
-define('LIDARR_LANGUAGE', 'C:\\Repositories\\Lidarr-Fork\\src\\NzbDrone.Core\\Localization\\Core\\en.json');
-define('READARR_BACKEND_ROOT', 'C:\\Repositories\\Readarr\\src');
-define('READARR_FRONTEND_ROOT', 'C:\\Repositories\\Readarr\\frontend\\src');
-define('READARR_LANGUAGE', 'C:\\Repositories\\Readarr\\src\\NzbDrone.Core\\Localization\\Core\\en.json');
-define('SONARR_BACKEND_ROOT', 'C:\\Repositories\\Sonarr-Fork\\src');
-define('SONARR_FRONTEND_ROOT', 'C:\\Repositories\\Sonarr-Fork\\frontend\\src');
-define('SONARR_LANGUAGE', 'C:\\Repositories\\Sonarr-Fork\\src\\NzbDrone.Core\\Localization\\Core\\en.json');
+define('LIDARR_BACKEND_ROOT', 'C:\\Development\\Code\\Lidarr\\src');
+define('LIDARR_FRONTEND_ROOT', 'C:\\Development\\Code\\Lidarr\\frontend\\src');
+define('LIDARR_LANGUAGE_ROOT', 'C:\\Development\\Code\\Lidarr\\src\\NzbDrone.Core\\Localization\\Core\\');
+define('PROWLARR_BACKEND_ROOT', 'C:\\Development\\Code\\Prowlarr\\src');
+define('PROWLARR_FRONTEND_ROOT', 'C:\\Development\\Code\\Prowlarr\\frontend\\src');
+define('PROWLARR_LANGUAGE_ROOT', 'C:\\Development\\Code\\Prowlarr\\src\\NzbDrone.Core\\Localization\\Core\\');
+define('RADARR_BACKEND_ROOT', 'C:\\Development\\Code\\Radarr\\src');
+define('RADARR_FRONTEND_ROOT', 'C:\\Development\\Code\\Radarr\\frontend\\src');
+define('RADARR_LANGUAGE_ROOT', 'C:\\Development\\Code\\Radarr\\src\\NzbDrone.Core\\Localization\\Core\\');
+define('READARR_BACKEND_ROOT', 'C:\\Development\\Code\\Readarr\\src');
+define('READARR_FRONTEND_ROOT', 'C:\\Development\\Code\\Readarr\\frontend\\src');
+define('READARR_LANGUAGE_ROOT', 'C:\\Development\\Code\\Readarr\\src\\NzbDrone.Core\\Localization\\Core\\');
+define('SONARR_BACKEND_ROOT', 'C:\\Development\\Code\\Sonarr\\src');
+define('SONARR_FRONTEND_ROOT', 'C:\\Development\\Code\\Sonarr\\frontend\\src');
+define('SONARR_LANGUAGE_ROOT', 'C:\\Development\\Code\\Sonarr\\src\\NzbDrone.Core\\Localization\\Core\\');
 
 define('APP', $_GET['application']);
 
@@ -49,6 +52,17 @@ define('DEBUG_FULL_STOP', $_GET['debugFullstop']); //-- EXIT SCRIPT BEFORE CHANG
 
 switch (APP)
 {
+  case 'lidarr';
+    define('TRANSLATE_ROOT', LIDARR_FRONTEND_ROOT);
+    define('EXISTING_LANGUAGE', LIDARR_LANGUAGE);
+    
+    $ignoreFiles = array('App', //-- app title
+                        );
+  break;
+  case 'prowlarr';
+    define('TRANSLATE_ROOT', PROWLARR_FRONTEND_ROOT);
+    define('EXISTING_LANGUAGE', PROWLARR_LANGUAGE);
+  break;
   case 'radarr';
     define('TRANSLATE_ROOT', RADARR_FRONTEND_ROOT);
     define('EXISTING_LANGUAGE', RADARR_LANGUAGE);
@@ -63,13 +77,6 @@ switch (APP)
                          'MovieHeadshot', //-- image
                          'MoviePoster', //-- image
                          'Peers', //-- title={`${getPeersTooltipPart(seeders, 'seeder')}, ${getPeersTooltipPart(leechers, 'leecher')}`} 
-                        );
-  break;
-  case 'lidarr';
-    define('TRANSLATE_ROOT', LIDARR_FRONTEND_ROOT);
-    define('EXISTING_LANGUAGE', LIDARR_LANGUAGE);
-    
-    $ignoreFiles = array('App', //-- app title
                         );
   break;
   case 'readarr';
@@ -165,8 +172,9 @@ $searchFiles = array('js');
       <select id="application">
         <option value="">-- Select One --</option>
         <option value="">Reset</option>
-        <option <?= ((APP == 'radarr') ? 'selected ' : '') ?>value="radarr">Radarr</option>
         <option <?= ((APP == 'lidarr') ? 'selected ' : '') ?>value="lidarr">Lidarr</option>
+        <option <?= ((APP == 'prowlarr') ? 'selected ' : '') ?>value="prowlarr">Prowlarr</option>
+        <option <?= ((APP == 'radarr') ? 'selected ' : '') ?>value="radarr">Radarr</option>
         <option <?= ((APP == 'readarr') ? 'selected ' : '') ?>value="readarr">Readarr</option>
         <option <?= ((APP == 'sonarr') ? 'selected ' : '') ?>value="sonarr">Sonarr</option>
       </select>
