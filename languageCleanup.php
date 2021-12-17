@@ -64,7 +64,7 @@ $langKeys       = array_keys($lang);
 $originalCount  = count($langKeys);
 
 $codebase = array('front' => array('files'      => recursive_read(FRONTEND_ROOT), 
-                                   'regex_u'    => "/translate\(\'%s\'/",
+                                   'regex_u'    => "/translate\(\'%s\'/i",
                                    'regex_m'    => "/translate\('(.*?)'/mi",
                                    'ext'        => $frontendFiles,
                                    'fileCount'  => 0,
@@ -105,7 +105,7 @@ switch (TYPE)
               continue;
             }
 
-            preg_match(sprintf($details['regex_u'], $key), $file, $matches);
+            preg_match(sprintf($details['regex_u'], strtolower($key)), $file, $matches);
 
             if ($matches)
             {
