@@ -6,37 +6,66 @@
 ----------------------------------
 */
 
+// This will NOT report uninitialized variables
+error_reporting(E_ERROR | E_PARSE);
+
 define('GITHUB_API_KEY', '');
+
+$app    = strtolower($_GET['app']);
+$repo   = ucfirst($app) .'/'. ucfirst($app);
+$valid  = false;
+
+if (!$app) {
+    exit('No app was provided.');
+}
+
+switch ($app) {
+    case 'lidarr':
+    case 'prowlarr':
+    case 'radarr':
+    case 'readarr':
+    case 'whisparr':
+        $valid = true;
+        break;
+}
+
+if (!$valid) {
+    exit($app .' is not supported.');
+}
 
 $memcache = new Memcached();
 $memcache->addServer('localhost', 11211) or die('Cache connection failure');
-$memcached = $memcache->get('radarr-branches');
+$memcached = $memcache->get($app .'-branches');
+
+if (@$_GET['memcached'] == 'reset') {
+    unset($memcached);
+}
 
 if (!$memcached) {
-    $develop = curl('https://api.github.com/repos/Radarr/Radarr/tags?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $develop = curl('https://api.github.com/repos/'. $repo .'/tags?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
     $developVersion = $develop['response'][0]['name'];
 
-    $master = curl('https://api.github.com/repos/Radarr/Radarr/tags?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $master = curl('https://api.github.com/repos/'. $repo .'/tags?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
     $masterVersion = $master['response'][0]['name'];
 
     //-- MIGRATIONS
-    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $contents = curl('https://api.github.com/repos/'. $repo .'/contents/src/NzbDrone.Core/Datastore/Migration?ref=develop', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
     $nightlyMigrations = $contents['response'];
 
-    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $contents = curl('https://api.github.com/repos/'. $repo .'/contents/src/NzbDrone.Core/Datastore/Migration?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
     $developMigrations = $contents['response'];
 
-    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Datastore/Migration?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $contents = curl('https://api.github.com/repos/'. $repo .'/contents/src/NzbDrone.Core/Datastore/Migration?ref=master', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
     $masterMigrations = $contents['response'];
 
     //-- LANGUAGES
-    $contents = curl('https://raw.githubusercontent.com/Radarr/Radarr/develop/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $contents = curl('https://raw.githubusercontent.com/'. $repo .'/develop/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
     $nightlyLanguage = $contents['response'];
 
-    $contents = curl('https://api.github.com/repos/Radarr/Radarr/contents/src/NzbDrone.Core/Languages/Language.cs?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
+    $contents = curl('https://api.github.com/repos/'. $repo .'/contents/src/NzbDrone.Core/Languages/Language.cs?ref='. $developVersion, array('Authorization: token '. GITHUB_API_KEY, 'accept: application/vnd.github.v3+json'));
     $developLanguage = base64_decode($contents['response']['content']);
 
-    $contents = curl('https://raw.githubusercontent.com/Radarr/Radarr/master/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY));
+    $contents = curl('https://raw.githubusercontent.com/'. $repo .'/master/src/NzbDrone.Core/Languages/Language.cs', array('Authorization: token '. GITHUB_API_KEY));
     $masterLanguage = $contents['response'];
 
     $cache['developVersion']    = $developVersion;
@@ -48,7 +77,7 @@ if (!$memcached) {
     $cache['developLanguage']   = $developLanguage;
     $cache['masterLanguage']    = $masterLanguage;
 
-    $memcache->set('radarr-branches', $cache, 43200); //-- 12 HOUR CACHE
+    $memcache->set($app .'-branches', $cache, 43200); //-- 12 HOUR CACHE
     
     $branches['cache'] = 'false';
 } else {
