@@ -123,7 +123,7 @@ $searchFor = array(
   array(
     'apply' => ((in_array('regex_tagDiv', $regexs)) ? true : false),
     'name' => 'tagDiv',
-    'regex' => '#<div[^>]*>([^&][\w\s;&]+)</div>#s'
+    'regex' => '#<div[^>]*>('[\w\W]+)'</div>#s'
   ),
   array(
     'apply' => ((in_array('regex_defineQuote', $regexs)) ? true : false),
