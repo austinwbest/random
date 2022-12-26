@@ -1,4 +1,5 @@
-<?PHP
+<?php
+
 /*
 ----------------------------------
  ------  Created: 042321   ------
@@ -30,8 +31,13 @@ function jackett_search($release)
 	
 	$results = json_decode($response, true);
 
-	if ($info['http_code'] == '200')
-	{
+    echo 'Query: ' . $url . ' [Results: ' . count($results) . ']<br>';
+
+	if ($info['http_code'] == 200) {
+        if (count($results) > 0) {
+            echo 'Results: ' . json_encode($results) . '<br>';
+        }
+
 		return $results;
 	}
 }
@@ -39,6 +45,7 @@ function jackett_search($release)
 function jackett_download($result)
 {
 	$destination = 'tmp/['. $result['Tracker'] .'] '. $result['Title'] .'.torrent';
+    echo 'Download: ' . $destination . '<br>';
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $result['Link']);
@@ -49,8 +56,7 @@ function jackett_download($result)
 	$info 		= curl_getinfo($ch);
 	curl_close($ch);
 	
-	if ($info['http_code'] == 200)
-	{
+	if ($info['http_code'] == 200) {
 		file_put_contents($destination, $response);
 		return true;
 	}
