@@ -1,4 +1,5 @@
-<?PHP
+<?php
+
 /*
 ----------------------------------
  ------  Created: 042321   ------
@@ -24,17 +25,14 @@ function qbt_login()
 	$info 		= curl_getinfo($ch);
 	curl_close($ch);
 
-	if ($info['http_code'] != '200')
-	{
+	if ($info['http_code'] != '200') {
 		exit('QBT auth failure, check settings.');
 	}
 
 	$headers = explode("\n", $response);
 
-	foreach ($headers as $header)
-	{
-		if (strpos($header, 'set-cookie:') !== false)
-		{
+	foreach ($headers as $header) {
+		if (strpos($header, 'set-cookie:') !== false) {
 			$cookie = reset(explode(';', $header));
 			$cookie = str_replace('set-cookie: ', '', $cookie);
 			break;
@@ -59,10 +57,8 @@ function qbt_getFiles($qbtCookie, $hash)
 
 	$files = json_decode($response, true);
 
-	if ($files)
-	{
-		foreach ($files as $file)
-		{
+	if ($files) {
+		foreach ($files as $file) {
 			$fileList[] = $file['name'];
 		}
 	}
@@ -85,28 +81,26 @@ function qbt_queue($qbtCookie, $filter = 'completed')
 	
 	$torrents = json_decode($response, true);
 
-	if ($info['http_code'] != '200')
-	{
+	if ($info['http_code'] != '200') {
 		exit('QBT queue failure, check settings.');
 	}
-	if (!$torrents)
-	{
+
+	if (!$torrents) {
 		exit('Nothing in the QBT queue, xseeding is not possible.');
 	}
 
 	return $torrents;
 }
 
-function qbt_addTorrent($qbtCookie, $torrent, $source, $hash)
+function qbt_addTorrent($qbtCookie, $torrent, $qbtItem)
 {
 	$absolutePath 	= str_replace('xseed.php', '', $_SERVER['SCRIPT_FILENAME']);
-	$postData 		= array('root_folder' => 'false', 'skip_checking' => 'true', 'urls' => $absolutePath . $torrent, 'savepath' => $source, 'category' => QBT_TAG);
+	$postData 		= array('root_folder' => 'false', 'skip_checking' => 'true', 'urls' => $absolutePath . $torrent, 'savepath' => $qbtItem['content_path'], 'category' => QBT_TAG, 'contentLayout' => 'NoSubfolder');
 	$torrentFile	= new Torrent($postData['urls']);
 	$content		= $torrentFile->content();
-	$qbtFile		= qbt_getFiles($qbtCookie, $hash);
+	$qbtFile		= qbt_getFiles($qbtCookie, $qbtItem['hash']);
 
-	if (count($content) == count($qbtFile))
-	{
+	if (count($content) == count($qbtFile)) {
 		$url = QBT_URL .'/api/v2/torrents/add';
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -120,49 +114,63 @@ function qbt_addTorrent($qbtCookie, $torrent, $source, $hash)
 		$addInfo 		= curl_getinfo($ch);
 		curl_close($ch);
 
-		if ($addResponse == 'Fails.')
-		{
-			$existingTrackers 	= qbt_getTrackers($qbtCookie, $hash);
+		if ($addResponse == 'Fails.') {
+			$existingTrackers 	= qbt_getTrackers($qbtCookie, $qbtItem['hash']);
 			$announcers 		= $torrentFile->announce();
-			$diff				= array_diff($announcers[0], $existingTrackers);
 
-			if (!$existingTrackers || !$announcers[0])
-			{
+            if (is_array($announcers[0]) && is_array($existingTrackers)) {
+                $diff = array_diff($announcers[0], $existingTrackers);
+            }
+
+			if (!$existingTrackers || !$announcers[0]) {
 				return 'Failed to add trackers';
 			}
 
-			if (!$diff)
-			{
+			if (!$diff && is_array($existingTrackers) && is_array($announcers[0])) {
 				$diff = array_diff($existingTrackers, $announcers[0]);
 			}
 
-			if ($diff)
-			{
-				foreach ($diff as $tracker)
-				{
-					$added = qbt_addTracker($qbtCookie, $hash, $tracker);
+			if ($diff) {
+				foreach ($diff as $tracker) {
+					$added = qbt_addTracker($qbtCookie, $qbtItem['hash'], $tracker);
 				}
 
-				if ($added)
-				{
+				if ($added) {
 					return;
 				}
 			}
 
-			return 'Failed to match hash or add new torrent';
-		}
-		else
-		{
+			return 'Failed to match hash or add new torrent (already exists?)';
+		} else {
 			sleep(3);
-			$recent = qbt_queue($qbtCookie, 'all');
-			foreach ($recent as $torrent)
-			{
-				if ($torrent['state'] != 'stalledUP')
-				{
-					qbt_delete($qbtCookie, $torrent['hash']);
-					return 'Check files failed';
-				}
-			}
+			$recent         = qbt_queue($qbtCookie, 'all');
+            $recentTorrent  = $recent[0];
+
+            if ($recentTorrent['state'] == 'missingFiles') {
+                qbt_delete($qbtCookie, $recentTorrent['hash']);
+
+                $postData = array('root_folder' => 'false', 'skip_checking' => 'true', 'urls' => $absolutePath . $torrent, 'savepath' => $qbtItem['save_path'], 'category' => QBT_TAG, 'contentLayout' => 'NoSubfolder');
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Cookie:'. $qbtCookie));	
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $addResponse 	= curl_exec($ch);
+                $addError 		= curl_error($ch);
+                $addInfo 		= curl_getinfo($ch);
+                curl_close($ch);
+
+                sleep(1);
+                $recent         = qbt_queue($qbtCookie, 'all');
+                $recentTorrent  = $recent[0];
+
+                if ($recentTorrent['state'] == 'missingFiles') {
+                    qbt_delete($qbtCookie, $recentTorrent['hash']);
+                    return 'Check files failed';
+                }
+            }
 		}
 
 		return;
@@ -200,12 +208,9 @@ function qbt_getTrackers($qbtCookie, $hash)
 
 	$trackers = json_decode($response, true);
 
-	if ($trackers)
-	{
-		foreach ($trackers as $tracker)
-		{
-			if ($tracker['status'] > 0)
-			{
+	if ($trackers) {
+		foreach ($trackers as $tracker) {
+			if ($tracker['status'] > 0) {
 				$trackerList[] = $tracker['url'];
 			}
 		}
@@ -231,8 +236,7 @@ function qbt_addTracker($qbtCookie, $hash, $trackers)
 	$info 		= curl_getinfo($ch);
 	curl_close($ch);
 
-	if ($info['http_code'] == '200')
-	{
+	if ($info['http_code'] == '200') {
 		return true;
 	}
 
