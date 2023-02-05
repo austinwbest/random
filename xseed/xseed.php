@@ -80,7 +80,7 @@ if (!$qbtItems) {
     echo '<br><hr><br>';
 
     if ($added) {
-        echo '<h3>Added</h3>' . implode('<br>', $skipping) . '<br><hr><br>';
+        echo '<h3>Added</h3>' . implode('<br>', $added) . '<br><hr><br>';
     }
 
     if ($failed) {
