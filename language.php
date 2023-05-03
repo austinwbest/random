@@ -108,12 +108,12 @@ $searchFor = array(
   array(
     'apply' => ((in_array('regex_attrQuotes', $regexs)) ? true : false),
     'name' => 'attrQuotes',
-    'regex' => '/(label|title|helpText|helpTextWarning|legend|message|errorMessage|placeholder)="([^"]+)"/i'
+    'regex' => '/(label|title|helpText|helpTextWarning|legend|message|errorMessage|placeholder)[=:]"([^"]+)"/i'
   ),
   array(
     'apply' => ((in_array('regex_attrInterp', $regexs)) ? true : false),
     'name' => 'attrInterp',
-    'regex' => '/(label|title|helpText|helpTextWarning|legend|message|errorMessage|placeholder)={([^"]+)}/i'
+    'regex' => '/(label|title|helpText|helpTextWarning|legend|message|errorMessage|placeholder)[:=]{([^"]+)}/i'
   ),
   array(
     'apply' => ((in_array('regex_tagFormLabel', $regexs)) ? true : false),
