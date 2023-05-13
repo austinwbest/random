@@ -69,3 +69,9 @@ This was something thrown together for when a drive is remounted/remapped and ev
 > trackerErrors.py
 
 Send a notification using the passthrough integration on Notifiarr when items in qbt are in an error state
+
+## passthrough notification script for Notifiarr
+
+> notifiarr.py
+
+Send json data to the script and it will push them to Notifiarr
