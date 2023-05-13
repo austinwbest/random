@@ -82,7 +82,6 @@ for hash, item in errors.items():
     singleFields.append(singleField)
 
     webhook = "python " + NOTIFIARR_PY + " -e \"QBT Tracker Error\" -c 631827062348578827 -m \"FFA500\" -t \"Tracker Error ("+ str(counter) +"/"+ str(totalErrors) +")\" -b \"Tracker URLs found with errors\" -g \"" + json.dumps(inlineFields).replace('"', r'\"') + "\" -f \"" + json.dumps(singleFields).replace('"', r'\"') + "\" -a \"https://notifiarr.com/images/logo/notifiarr.png\" -z \"Passthrough Integration\""
-    print(webhook)
     subprocess.call(webhook)
     time.sleep(1)
     counter = counter + 1
