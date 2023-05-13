@@ -58,8 +58,14 @@ This will connect to your qbt and jackett to try and reach out to the configured
 
 This was something thrown together for someone who asked if they could pick a directory on their network and have it create a .torrent file, upload thumbnail images, create a copy/paste template, etc for later usage. Ya know, to easily upload those linux iso's
 
-## qbit skip rechecking
+## qbt skip rechecking
 
 > qbt-skip-rechecking/*
 
 This was something thrown together for when a drive is remounted/remapped and everything is trying to re-check files when it is not necessary. It will grab everything with `checkingUP` state and remove it from qbt then re-add it with skip_checking set to true. This **will** reset seed time, ratio, etc in qbt but the tradeoff is fine to avoid rechecking hundreds/thousands of torrents for no reason
+
+## qbt notify for errors
+
+> trackerErrors.py
+
+Send a notification using the passthrough integration on Notifiarr when items in qbt are in an error state
