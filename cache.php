@@ -530,8 +530,15 @@ function getMeta($source, $id)
 			$mediaArray = json2Array($result);
 		break;
 		case 'notifiarr-series':
-			$mediaArray = api('series/meta', array('sources' => 'tvdb', 'id' => $id));
-			$mediaArray = $mediaArray['TVDB'];
+            $metaOptions = array('meta' => array('id'       => $id,
+                                                 'type'     => 'sonarr',
+                                                 'sources'  => 'tvdb',
+                                                 'update'   => false,
+                                                )
+                                );
+
+            $metadata   = apiInternal($metaOptions);
+			$mediaArray = $metadata['TVDB'];
 		break;
 		case 'tmdb':
 			$mediaArray = getTMDBDetails($id);
@@ -550,11 +557,20 @@ function getMeta($source, $id)
 			$mediaArray = json2Array($result);
 		break;
 		case 'notifiarr-movie':
-			$mediaArray = api('movie/meta', array('sources' => 'tmdb', 'id' => $id));
-			$mediaArray = $mediaArray['TMDB'];
+            $metaOptions = array('meta' => array('id'       => $id,
+                                                 'type'     => 'radarr',
+                                                 'sources'  => 'tmdb',
+                                                 'update'   => false,
+                                                )
+                                );
+
+            $metadata   = apiInternal($metaOptions);
+			$mediaArray = $metadata['TMDB'];
 		break;
 	}
 
 	return $mediaArray;
 }
+
+require 'includes/footer.php';
 ?>
