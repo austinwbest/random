@@ -64,6 +64,12 @@ This was something thrown together for someone who asked if they could pick a di
 
 This was something thrown together for when a drive is remounted/remapped and everything is trying to re-check files when it is not necessary. It will grab everything with `checkingUP` state and remove it from qbt then re-add it with skip_checking set to true. This **will** reset seed time, ratio, etc in qbt but the tradeoff is fine to avoid rechecking hundreds/thousands of torrents for no reason
 
+## qbt find orphans
+
+> qbt-orphaned-data/*
+
+Quick script to check a data directory against qbt and find where data exists but nothing in qbt does, it will rename them so they can be easily found and deleted. It will also run the qbt list against the data directories and see what is in qbt but has no data and add a tag to them.
+
 ## qbt notify for errors
 
 > trackerErrors.py
