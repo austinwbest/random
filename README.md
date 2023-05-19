@@ -81,3 +81,9 @@ Send a notification using the passthrough integration on Notifiarr when items in
 > notifiarr.py
 
 Send json data to the script and it will push them to Notifiarr
+
+## autobrr updater script
+
+> autobrr-updater.py
+
+Quick throw together script so autobrr will auto update on windows
