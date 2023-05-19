@@ -16,6 +16,7 @@ print('Update check starting...');
 autobrrURL              = 'http://localhost:7474'
 autobrrApikey           = ''
 autobrrInstallFolder    = 'C:\\ProgramData\\autobrr'
+autobrrShortcut         = 'C:\\Users\\nitsua\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\autobrr.lnk';
 
 print('Connecting to autobrr on ' + autobrrURL + ' using apikey ' + autobrrApikey + '...')
 autobrrConfig           = requests.get(autobrrURL + '/api/config?apikey=' + autobrrApikey)
@@ -67,12 +68,11 @@ for release in json:
 
         shutil.move(tmpFolder + '\\autobrr\\autobrr.exe', autobrrInstallFolder + '\\autobrr.exe')
         shutil.move(tmpFolder + '\\autobrr\\autobrrctl.exe', autobrrInstallFolder + '\\autobrrctl.exe')
-        
         print('Files moved, restarting autobrr...')
         
-        os.startfile(autobrrInstallFolder + '\\autobrr.exe')
-
+        os.startfile(autobrrShortcut)
         print('Autobrr restarted, cleaning up...')
+
         shutil.rmtree(tmpFolder + '\\autobrr')
         break
 
