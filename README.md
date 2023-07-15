@@ -58,6 +58,12 @@ This will connect to your qbt and jackett to try and reach out to the configured
 
 This was something thrown together for someone who asked if they could pick a directory on their network and have it create a .torrent file, upload thumbnail images, create a copy/paste template, etc for later usage. Ya know, to easily upload those linux iso's
 
+## qbt relink
+
+> qbt-relink/*
+
+This was something thrown together for when hardlinks are not possible but forever using double storage isnt an option and you want to perm-seed things. After the data is imported to its final spot, grab the torrent file and point it at the final spot. You can then run this script and it will match up the names from the final folder to the content in the torrent file and rename everything accordingly so it can pass a re-check. This works on season packs and movies (not individual episodes). Since this is re-adding it this **will** reset seed time, ratio, etc in qbt but the tradeoff is perm-seeding. Ideally you want 2 qbt instances (1 for daily driver and 1 for perm seeding in this scenario). Remove/pause it in the daily and add it to the perm seed.
+
 ## qbt skip rechecking
 
 > qbt-skip-rechecking/*
