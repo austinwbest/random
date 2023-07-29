@@ -1,0 +1,14 @@
+{
+    "php.suggest.basic": true,
+    "php.validate.enable": true,
+    "php.validate.executablePath": "C:\\Program Files (x86)\\EasyPHP-Devserver-17\\eds-binaries\\php\\php812vs16x64x230623211722\\php.exe",
+    "php.problems.exclude": {
+        "/": [415]
+    },
+    "php.problems.excludeGitIgnore": true,
+    "intelephense.diagnostics.undefinedConstants": false,
+    "workbench.editor.wrapTabs": true,
+    "files.watcherExclude": {
+        "**/assets/**": true
+    }
+}
