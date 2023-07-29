@@ -82,6 +82,12 @@ Quick script to check a data directory against qbt and find where data exists bu
 
 Send a notification using the passthrough integration on Notifiarr when items in qbt are in an error state
 
+## seed management
+
+> seed-management/*
+
+Combines a lot of other scripts into one run. Will tag things based on indexer, remove (recycle or delete or tag), recycle cleanup, error checking, qbt orphans, disk orphans, etc all from one run. This is mainly for use on windows where HL is not used (recommend qbt manage)
+
 ## passthrough notification script for Notifiarr
 
 > notifiarr.py
