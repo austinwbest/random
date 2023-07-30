@@ -34,7 +34,7 @@ for release in json:
     if version.parse(releaseVersion) > version.parse(currentVersion):
         print('Newest version is greater than current version, upgrade needed...')
 
-        asset = 'https://github.com/autobrr/autobrr/releases/download/' + release['tag_name'] + '/autobrr_' + releaseVersion + '_windows_x86_64.tar.gz'
+        asset = 'https://github.com/autobrr/autobrr/releases/download/' + release['tag_name'] + '/autobrr_' + releaseVersion + '_windows_x86_64.zip'
         print('Grabbing asset: ' + asset + '...');
 
         tmpFolder           = tempfile.gettempdir()
@@ -44,7 +44,7 @@ for release in json:
             shutil.rmtree(tmpFolder + '\\autobrr')
 
         os.mkdir(autobrrTmpFolder)
-        tmpFilename         = 'autobrr_' + releaseVersion + '_windows_x86_64.tar.gz'
+        tmpFilename         = 'autobrr_' + releaseVersion + '_windows_x86_64.zip'
         tmpFile             = tmpFolder + '\\autobrr\\' + tmpFilename
 
         print('Temp folder: ' + tmpFolder)
