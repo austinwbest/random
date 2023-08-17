@@ -37,7 +37,7 @@ foreach ($qbtItems as $torrent) {
 				$orphanMessage = (DRY_RUN_ORPHAN_QBT ? 'DRY_RUN_ORPHAN_QBT ' : '') . 'Orphan tag removed';
 				output('orphan-qbt', $orphanMessage, ['print' => true, 'log' => true]);
 
-				$qbtApi->removeTagToTorrent(ORPHAN_TAG, $torrent['hash']);
+				$qbtApi->removeTagFromTorrent(ORPHAN_TAG, $torrent['hash']);
 				$orphanTagsRemoved++;
 			}
 		}

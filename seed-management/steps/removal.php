@@ -35,23 +35,23 @@ foreach ($qbtItems as $torrent) {
     $seedDays   = floor($torrent['seeding_time'] / 86400);
     $ratio      = $torrent['ratio'];
 
+    //-- CHECK FOR "MIN_LENGTH"
+    if ($indexerSettings['MIN_LENGTH'] && ($seedDays > $indexerSettings['MIN_LENGTH'])) {
+        $torrent['indexerSettings'] = $indexerSettings;
+        $torrent['reason']          = 'MIN_LENGTH';
+        $remove[$torrent['hash']]   = $torrent;
+    }
+    //-- CHECK FOR "MAX_LENGTH"
+    if ($indexerSettings['MAX_LENGTH'] && ($seedDays > $indexerSettings['MAX_LENGTH'])) {
+        $torrent['indexerSettings'] = $indexerSettings;
+        $torrent['reason']          = 'MAX_LENGTH';
+        $remove[$torrent['hash']]   = $torrent;
+    }
     //-- CHECK FOR "SATISFY_RATIO"
-    if ($indexerSettings['SATISFY_RATIO']) {
-        if ($ratio > $indexerSettings['MIN_RATIO']) {
-            $torrent['reason'] = 'SATISFY_RATIO';
-            $remove[$torrent['hash']] = $torrent;
-        }
-    } else {
-        //-- CHECK FOR "MIN_LENGTH"
-        if ($indexerSettings['MIN_LENGTH'] && $seedDays > $indexerSettings['MIN_LENGTH']) {
-            $torrent['reason'] = 'MIN_LENGTH';
-            $remove[$torrent['hash']] = $torrent;
-        }
-        //-- CHECK FOR "MAX_LENGTH"
-        if ($indexerSettings['MAX_LENGTH'] && $seedDays > $indexerSettings['MAX_LENGTH']) {
-            $torrent['reason'] = 'MAX_LENGTH';
-            $remove[$torrent['hash']] = $torrent;
-        }
+    if ($indexerSettings['SATISFY_RATIO'] && ($ratio > $indexerSettings['MIN_RATIO'])) {
+        $torrent['indexerSettings'] = $indexerSettings;
+        $torrent['reason']          = 'SATISFY_RATIO';
+        $remove[$torrent['hash']]   = $torrent;
     }
 }
 
@@ -61,6 +61,8 @@ $removeSkipped = [];
 $removalTagsAdded = $removalTorrentsPaused = $removeTorrentsRecycled = $removeTorrentsDeleted = $removalSize = 0;
 if ($remove) {
     foreach ($remove as $torrent) {
+        $indexerSettings = $torrent['indexerSettings'];
+
 		if (checkIgnoreRules('removal', $torrent)) {
 			$removeSkipped[$torrent['hash']] = true;
 			continue;			
@@ -78,7 +80,7 @@ if ($remove) {
                     case 'SATISFY_RATIO':
                         //-- CHECK FOR DISK SPACE FIRST
                         if ($torrent['total_size'] < $recycleFreeSpaceBytes) {
-                            $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Moving (SATISFY_RATIO) "' . $torrent['name'] . '" to "' . RECYCLE_PATH . $torrent['name'] . '"';
+                            $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Moving [' . $indexerSettings['TAG'] . '] torrent (SATISFY_RATIO) "' . $torrent['name'] . '" to "' . RECYCLE_PATH . $torrent['name'] . '"';
                             output('removal', $message, ['print' => true, 'log' => true]);
 
                             if (!DRY_RUN_REMOVAL) {
@@ -112,7 +114,7 @@ if ($remove) {
 
                         //-- CHECK FOR DISK SPACE FIRST
                         if ($torrent['total_size'] < $recycleFreeSpaceBytes) {
-                            $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Moving (MIN/MAX_LENGTH) "' . $torrent['name'] . '" to "' . RECYCLE_PATH . $torrent['name'] . '"';
+                            $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Moving [' . $indexerSettings['TAG'] . '] torrent (MIN/MAX_LENGTH) "' . $torrent['name'] . '" to "' . RECYCLE_PATH . $torrent['name'] . '"';
                             output('removal', $message, ['print' => true, 'log' => true]);
 
                             if (!DRY_RUN_REMOVAL) {
@@ -133,7 +135,7 @@ if ($remove) {
             } elseif (DELETE_RULE_MATCHES) {
                 switch ($torrent['reason']) {
                     case 'SATISFY_RATIO':
-                        $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Deleting ' . $torrent['name'] . ' (SATISFY_RATIO)';
+                        $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Deleting [' . $indexerSettings['TAG'] . '] torrent ' . $torrent['name'] . ' (SATISFY_RATIO)';
                         output('removal', $message, ['print' => true, 'log' => true]);
 
                         if (!DRY_RUN_REMOVAL) {
@@ -157,7 +159,7 @@ if ($remove) {
                             continue;
                         }
 
-                        $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Deleting "' . $torrent['name'] . '" (MIN/MAX_LENGTH)';
+                        $message = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Deleting [' . $indexerSettings['TAG'] . '] torrent "' . $torrent['name'] . '" (MIN/MAX_LENGTH)';
                         output('removal', $message, ['print' => true, 'log' => true]);
 
                         if (!DRY_RUN_REMOVAL) {
@@ -174,7 +176,7 @@ if ($remove) {
                 $exists = $qbtApi->tagExists(SATISFIED_TAG, $tags);
 
                 if (!$exists) {
-                    $output = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Applying tag "'. SATISFIED_TAG .'" to item "'. $torrent['name'] .'"';
+                    $output = (DRY_RUN_REMOVAL ? 'DRY_RUN_REMOVAL ' : '') . 'Applying ' . $indexerSettings['TAG'] . ' tag "'. SATISFIED_TAG .'" to item "'. $torrent['name'] .'"';
                     output('removal', $output, ['print' => true, 'log' => true]);
                     output('removal', 'existing tags: ' . $torrent['tags'], ['log' => true]);
         
