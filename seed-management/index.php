@@ -53,9 +53,6 @@ output('main', 'Log file: ' . LOG_FILE, ['print' => true, 'log' => true]);
 output('main', 'Total torrents found: ' . number_format($totalTorrents), ['print' => true, 'log' => true]);
 output('main', '------------------------------------------------------------', ['print' => true]);
 
-$ignoreCats = json_decode(IGNORE_CATEGORIES, true);
-$ignoreTags = json_decode(IGNORE_TAGS, true);
-
 //-- INDEXER TAG MANAGEMENT
 /*
 	This step will loop the indexers in constants.php and check against the qbt torrent list to:

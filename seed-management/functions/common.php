@@ -9,14 +9,35 @@
 
 function checkIgnoreRules($step, $torrent)
 {
-	global $ignoreTags, $ignoreCats;
+	switch ($step) {
+		case 'errors':
+			$ignorePaused 	= IGNORE_PAUSED_ERRORS;
+			$ignoreCats 	= json_decode(IGNORE_CATEGORIES_ERRORS, true);
+			$ignoreTags		= json_decode(IGNORE_TAGS_ERRORS, true);
+			break;
+		case 'orphan-qbt':
+			$ignorePaused 	= IGNORE_PAUSED_ORPHAN_QBT;
+			$ignoreCats 	= json_decode(IGNORE_CATEGORIES_ORPHAN_QBT, true);
+			$ignoreTags		= json_decode(IGNORE_TAGS_ORPHAN_QBT, true);
+			break;
+		case 'tags':
+			$ignorePaused 	= IGNORE_PAUSED_TAGS;
+			$ignoreCats 	= json_decode(IGNORE_CATEGORIES_TAGS, true);
+			$ignoreTags		= json_decode(IGNORE_TAGS_TAGS, true);
+			break;
+		case 'removal':
+			$ignorePaused 	= IGNORE_PAUSED_REMOVAL;
+			$ignoreCats 	= json_decode(IGNORE_CATEGORIES_REMOVAL, true);
+			$ignoreTags		= json_decode(IGNORE_TAGS_REMOVAL, true);
+			break;
+	}
 
 	if ($torrent['state'] == STATE_DOWNLOADING) {
 		output($step, 'Skipping ' . $torrent['name'] .', STATE_DOWNLOADING', ['log' => true]);
 		return true;
 	}
 
-	if ($torrent['state'] == STATE_PAUSED && IGNORE_PAUSED) {
+	if ($torrent['state'] == STATE_PAUSED && $ignorePaused) {
 		output($step, 'Skipping ' . $torrent['name'] .', IGNORE_PAUSED', ['log' => true]);
 		return true;
 	}

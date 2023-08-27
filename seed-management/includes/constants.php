@@ -71,10 +71,22 @@ define('ISSUES_TAG', 'issue');
 define('TAG_ORPHANS', true);
 define('ORPHAN_TAG', 'orphaned');
 
-//-- IGNORE THINGS
-define('IGNORE_PAUSED', true); //-- Do not do anything with a paused torrent
-define('IGNORE_CATEGORIES', '["re-seed", "xseed", "misc", "upload-direct"]'); //-- Do not do anything with a torrent in one of these categories
-define('IGNORE_TAGS', '[]'); //-- Do not do anything with a torrent that contains one of these tags
+//-- IGNORE THINGS ON SPECIFIC STEPS
+//-- Do not do anything with a paused torrent
+define('IGNORE_PAUSED_TAGS', false);
+define('IGNORE_PAUSED_REMOVAL', true);
+define('IGNORE_PAUSED_ERRORS', true);
+define('IGNORE_PAUSED_ORPHAN_QBT', true);
+//-- Do not do anything with a torrent in one of these categories
+define('IGNORE_CATEGORIES_TAGS', '[]');
+define('IGNORE_CATEGORIES_REMOVAL', '["re-seed", "xseed", "misc", "upload-direct"]');
+define('IGNORE_CATEGORIES_ERRORS', '[]');
+define('IGNORE_CATEGORIES_ORPHAN_QBT', '["re-seed", "xseed", "misc", "upload-direct"]');
+//-- Do not do anything with a torrent that contains one of these tags
+define('IGNORE_TAGS_TAGS', '[]');
+define('IGNORE_TAGS_REMOVAL', '[]');
+define('IGNORE_TAGS_ERRORS', '[]');
+define('IGNORE_TAGS_ORPHAN_QBT', '[]');
 
 //-- MISC
 define('ACTIVE_SEED', 14); //-- What to consider an active seed, activity in the last n days
