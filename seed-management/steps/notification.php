@@ -27,64 +27,103 @@ if (!NOTIFY_RUN) {
 if (!$notifyError) {
 	$liveRun 	= [];
 	$dryRun 	= ['Tags', 'Removals', 'Recycle cleanup', 'Errors', 'QBT Orphans', 'Disk Orphans'];
+	$skipRun 	= ['Tags', 'Removals', 'Recycle cleanup', 'Errors', 'QBT Orphans', 'Disk Orphans'];
 	$tagData = $removalData = $recycleData = $errorData = $qbtOrphanData = $driveOrphanData = '';
-	if (!DRY_RUN_TAGS) {
+
+	if (SKIP_TAGS) {
 		unset($dryRun[0]);
-		$liveRun[] = 'Tags';
-		$tagData = 'Indexers skipped: ' . number_format($taggingIndexersSkipped) . "\n";
-		$tagData .= 'Torrents skipped: ' . number_format($torrentTagsSkipped) . "\n";
-		$tagData .= 'Tags added: ' . number_format($torrentTagsAdded) . "\n";
+	} else {
+		unset($skipRun[0]);
+
+		if (!DRY_RUN_TAGS) {
+			unset($dryRun[0]);
+			$liveRun[] = 'Tags';
+			$tagData = 'Indexers skipped: ' . number_format($taggingIndexersSkipped) . "\n";
+			$tagData .= 'Torrents skipped: ' . number_format($torrentTagsSkipped) . "\n";
+			$tagData .= 'Tags added: ' . number_format($torrentTagsAdded) . "\n";
+		}
 	}
 
-	if (!DRY_RUN_REMOVAL) {
+	if (SKIP_REMOVAL) {
 		unset($dryRun[1]);
-		$liveRun[] = 'Removals';
-		$removalData = 'Skipped: ' . number_format(count($removeSkipped)) . "\n";
-		$removalData .= 'Tagged: ' . number_format($removalTagsAdded) . "\n";
-		$removalData .= 'Paused: ' . number_format($removalTorrentsPaused) . "\n";
-		$removalData .= 'Recycled: ' . number_format($removeTorrentsRecycled) . "\n";
-		$removalData .= 'Deleted: ' . number_format($removeTorrentsDeleted) . "\n";
-		$removalData .= 'Size: ' . byteConversion($removalSize) . "\n";
+	} else {
+		unset($skipRun[1]);
+
+		if (!DRY_RUN_REMOVAL) {
+			unset($dryRun[1]);
+			$liveRun[] = 'Removals';
+			$removalData = 'Skipped: ' . number_format(count($removeSkipped)) . "\n";
+			$removalData .= 'Tagged: ' . number_format($removalTagsAdded) . "\n";
+			$removalData .= 'Paused: ' . number_format($removalTorrentsPaused) . "\n";
+			$removalData .= 'Recycled: ' . number_format($removeTorrentsRecycled) . "\n";
+			$removalData .= 'Deleted: ' . number_format($removeTorrentsDeleted) . "\n";
+			$removalData .= 'Size: ' . byteConversion($removalSize) . "\n";
+		}
 	}
 
-	if (!DRY_RUN_RECYCLE) {
+	if (SKIP_RECYCLE) {
 		unset($dryRun[2]);
-		$liveRun[] = 'Recycle cleanup';
-		$recycleData = 'Items: ' . number_format($recycleItems) . "\n";
-		$recycleData .= 'Recycled: ' . number_format(count($recycledItems)) . "\n";
-		$recycleData .= 'Size: ' . byteConversion($recycleDiskSize) . "\n";
+	} else {
+		unset($skipRun[2]);
+
+		if (!DRY_RUN_RECYCLE) {
+			unset($dryRun[2]);
+			$liveRun[] = 'Recycle cleanup';
+			$recycleData = 'Items: ' . number_format($recycleItems) . "\n";
+			$recycleData .= 'Recycled: ' . number_format(count($recycledItems)) . "\n";
+			$recycleData .= 'Size: ' . byteConversion($recycleDiskSize) . "\n";
+		}
 	}
 
-	if (!DRY_RUN_ERRORS) {
+	if (SKIP_ERRORS) {
 		unset($dryRun[3]);
-		$liveRun[] = 'Errors';
-		$errorData = 'Skipped: ' . number_format($torrentErrorsSkipped) . "\n";
-		$errorData .= 'Tags added: ' . number_format($torrentIssueTagsAdded) . "\n";
-		$errorData .= 'Tags removed: ' . number_format($torrentIssueTagsRemoved) . "\n";
-		$errorData .= 'Paused: ' . number_format($torrentIssuePaused) . "\n";
+	} else {
+		unset($skipRun[3]);
+
+		if (!DRY_RUN_ERRORS) {
+			unset($dryRun[3]);
+			$liveRun[] = 'Errors';
+			$errorData = 'Skipped: ' . number_format($torrentErrorsSkipped) . "\n";
+			$errorData .= 'Tags added: ' . number_format($torrentIssueTagsAdded) . "\n";
+			$errorData .= 'Tags removed: ' . number_format($torrentIssueTagsRemoved) . "\n";
+			$errorData .= 'Paused: ' . number_format($torrentIssuePaused) . "\n";
+		}
 	}
 
-	if (!DRY_RUN_ORPHAN_QBT) {
+	if (SKIP_ORPHAN_QBT) {
 		unset($dryRun[4]);
-		$liveRun[] = 'QBT Orphans';
-		$qbtOrphanData = 'Skipped: ' . number_format(count($orphanTagsSkipped)) . "\n";
-		$qbtOrphanData .= 'Orphans: ' . number_format(count($orphanedQbtTorrents)) . "\n";
-		$qbtOrphanData .= 'Tags added: ' . number_format($orphanTagsAdded) . "\n";
-		$qbtOrphanData .= 'Tags removed: ' . number_format($orphanTagsRemoved) . "\n";
+	} else {
+		unset($skipRun[4]);
+
+		if (!DRY_RUN_ORPHAN_QBT) {
+			unset($dryRun[4]);
+			$liveRun[] = 'QBT Orphans';
+			$qbtOrphanData = 'Skipped: ' . number_format(count($orphanTagsSkipped)) . "\n";
+			$qbtOrphanData .= 'Orphans: ' . number_format(count($orphanedQbtTorrents)) . "\n";
+			$qbtOrphanData .= 'Tags added: ' . number_format($orphanTagsAdded) . "\n";
+			$qbtOrphanData .= 'Tags removed: ' . number_format($orphanTagsRemoved) . "\n";
+		}
 	}
 
-	if (!DRY_RUN_ORPHAN_DISK) {
+	if (SKIP_ORPHAN_DISK) {
 		unset($dryRun[5]);
-		$liveRun[] = 'Disk Orphans';
-		$driveOrphanData = 'Orphans: ' . number_format(count($orphanDiskTorrents)) . "\n";
-		$driveOrphanData .= 'Moved: ' . number_format($orphanDiskTorrentsMoved) . "\n";
-		$driveOrphanData .= 'Deleted: ' . number_format($orphanDiskTorrentsDeleted) . "\n";
-		$driveOrphanData .= 'Size: ' . byteConversion($orphanDiskSize) . "\n";
+	} else {
+		unset($skipRun[5]);
+
+		if (!DRY_RUN_ORPHAN_DISK) {
+			unset($dryRun[5]);
+			$liveRun[] = 'Disk Orphans';
+			$driveOrphanData = 'Orphans: ' . number_format(count($orphanDiskTorrents)) . "\n";
+			$driveOrphanData .= 'Moved: ' . number_format($orphanDiskTorrentsMoved) . "\n";
+			$driveOrphanData .= 'Deleted: ' . number_format($orphanDiskTorrentsDeleted) . "\n";
+			$driveOrphanData .= 'Size: ' . byteConversion($orphanDiskSize) . "\n";
+		}
 	}
 
 	$fields[] = ['title' => 'Indexers', 'text' => number_format(count($indexers)), 'inline' => true];
 	$fields[] = ['title' => 'Torrents', 'text' => number_format(count($qbtItems)), 'inline' => true];
 	$fields[] = ['title' => 'Run time', 'text' => seconds2relative($runEnd - $runStart) .'s', 'inline' => true];
+	$fields[] = ['title' => 'Skip run', 'text' => (!empty($skipRun) ? implode(', ', $skipRun) : 'None'), 'inline' => false];
 	$fields[] = ['title' => 'Dry run', 'text' => (!empty($dryRun) ? implode(', ', $dryRun) : 'None'), 'inline' => false];
 	$fields[] = ['title' => 'Live run', 'text' => (!empty($liveRun) ? implode(', ', $liveRun) : 'None'), 'inline' => false];
 
@@ -134,7 +173,7 @@ if (!$notifyError) {
 													],
 									'text' 		=> [
 													'title' 		=> 'Run finished',
-													'icon' 			=> 'https://notifiarr.com/images/logo/notifiarr.png',
+													'icon' 			=> 'https://notifiarr.com/images/logo/notifiarr.png?t=' . time(),
 													'content' 		=> '',
 													'description' 	=> '',
 													'fields' 		=> $fields,

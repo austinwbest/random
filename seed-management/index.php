@@ -59,10 +59,14 @@ output('main', '------------------------------------------------------------', [
 		Tag any that have matches and are missing tags
 */
 output('main', 'Tag management started...', ['print' => true, 'log' => true]);
-$stepStart = microtime(true);
-require 'steps/tags.php';
-$stepFinish = microtime(true);
-$stepTagsRuntime = number_format(($stepFinish - $stepStart), 2);
+if (SKIP_TAGS) {
+	output('main', 'Tag management skipped SKIP_TAGS=true', ['print' => true, 'log' => true]);
+} else {
+	$stepStart = microtime(true);
+	require 'steps/tags.php';
+	$stepFinish = microtime(true);
+	$stepTagsRuntime = number_format(($stepFinish - $stepStart), 2);
+}
 output('main', 'Runtime: ' . $stepTagsRuntime . 's', ['print' => true, 'log' => true]);
 output('main', 'Tag management completed.', ['print' => true, 'log' => true]);
 output('main', '------------------------------------------------------------', ['print' => true]);
@@ -73,10 +77,14 @@ output('main', '------------------------------------------------------------', [
 		Remove any that meet the criteria for removal
 */
 output('main', 'Removal started...', ['print' => true, 'log' => true]);
-$stepStart = microtime(true);
-require 'steps/removal.php';
-$stepFinish = microtime(true);
-$stepRemovalRuntime = number_format(($stepFinish - $stepStart), 2);
+if (SKIP_REMOVAL) {
+	output('main', 'Removal skipped SKIP_REMOVAL=true', ['print' => true, 'log' => true]);
+} else {
+	$stepStart = microtime(true);
+	require 'steps/removal.php';
+	$stepFinish = microtime(true);
+	$stepRemovalRuntime = number_format(($stepFinish - $stepStart), 2);
+}
 output('main', 'Runtime: ' . $stepRemovalRuntime . 's', ['print' => true, 'log' => true]);
 output('main', 'Removal completed.', ['print' => true, 'log' => true]);
 output('main', '------------------------------------------------------------', ['print' => true]);
@@ -87,10 +95,14 @@ output('main', '------------------------------------------------------------', [
 		Remove anything that is older than allowed
 */
 output('main', 'Recycle cleanup started...', ['print' => true, 'log' => true]);
-$stepStart = microtime(true);
-require 'steps/recycle.php';
-$stepFinish = microtime(true);
-$stepRecycleRuntime = number_format(($stepFinish - $stepStart), 2);
+if (SKIP_RECYCLE) {
+	output('main', 'Recycle cleanup skipped SKIP_RECYCLE=true', ['print' => true, 'log' => true]);
+} else {
+	$stepStart = microtime(true);
+	require 'steps/recycle.php';
+	$stepFinish = microtime(true);
+	$stepRecycleRuntime = number_format(($stepFinish - $stepStart), 2);
+}
 output('main', 'Runtime: ' . $stepRecycleRuntime . 's', ['print' => true, 'log' => true]);
 output('main', 'Recycle cleanup completed.', ['print' => true, 'log' => true]);
 output('main', '------------------------------------------------------------', ['print' => true]);
@@ -101,10 +113,14 @@ output('main', '------------------------------------------------------------', [
 		Find any torrents that have errors on all announce urls
 */
 output('main', 'Announce error checking started...', ['print' => true, 'log' => true]);
-$stepStart = microtime(true);
-require 'steps/errors.php';
-$stepFinish = microtime(true);
-$stepErrorsRuntime = number_format(($stepFinish - $stepStart), 2);
+if (SKIP_ERRORS) {
+	output('main', 'Announce error skipped SKIP_ERRORS=true', ['print' => true, 'log' => true]);
+} else {
+	$stepStart = microtime(true);
+	require 'steps/errors.php';
+	$stepFinish = microtime(true);
+	$stepErrorsRuntime = number_format(($stepFinish - $stepStart), 2);
+}
 output('main', 'Runtime: ' . $stepErrorsRuntime . 's', ['print' => true, 'log' => true]);
 output('main', 'Announce error checking completed.', ['print' => true, 'log' => true]);
 output('main', '------------------------------------------------------------', ['print' => true]);
@@ -115,10 +131,14 @@ output('main', '------------------------------------------------------------', [
 		Find anything in qbt that does not have data on disk
 */
 output('main', 'QBT orphan checking started...', ['print' => true, 'log' => true]);
-$stepStart = microtime(true);
-require 'steps/orphan-qbt.php';
-$stepFinish = microtime(true);
-$stepOrphanQbtRuntime = number_format(($stepFinish - $stepStart), 2);
+if (SKIP_ORPHAN_QBT) {
+	output('main', 'QBT orphan skipped SKIP_ORPHAN_QBT=true', ['print' => true, 'log' => true]);
+} else {
+	$stepStart = microtime(true);
+	require 'steps/orphan-qbt.php';
+	$stepFinish = microtime(true);
+	$stepOrphanQbtRuntime = number_format(($stepFinish - $stepStart), 2);
+}
 output('main', 'Runtime: ' . $stepOrphanQbtRuntime . 's', ['print' => true, 'log' => true]);
 output('main', 'QBT orphan checking completed.', ['print' => true, 'log' => true]);
 output('main', '------------------------------------------------------------', ['print' => true]);
@@ -129,10 +149,14 @@ output('main', '------------------------------------------------------------', [
 		Find anything on disk that does not have data in qbt
 */
 output('main', 'Disk orphan checking started...', ['print' => true, 'log' => true]);
-$stepStart = microtime(true);
-require 'steps/orphan-disk.php';
-$stepFinish = microtime(true);
-$stepOrphanDiskRuntime = number_format(($stepFinish - $stepStart), 2);
+if (SKIP_ORPHAN_DISK) {
+	output('main', 'Disk orphan skipped SKIP_ORPHAN_DISK=true', ['print' => true, 'log' => true]);
+} else {
+	$stepStart = microtime(true);
+	require 'steps/orphan-disk.php';
+	$stepFinish = microtime(true);
+	$stepOrphanDiskRuntime = number_format(($stepFinish - $stepStart), 2);
+}
 output('main', 'Runtime: ' . $stepOrphanDiskRuntime . 's', ['print' => true, 'log' => true]);
 output('main', 'Disk orphan checking completed.', ['print' => true, 'log' => true]);
 output('main', '------------------------------------------------------------', ['print' => true]);

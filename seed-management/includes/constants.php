@@ -14,6 +14,16 @@ if (!file_exists(HOME_DIR . 'secrets.json')) {
 
 $secrets = json_decode(file_get_contents(HOME_DIR . 'secrets.json'), true);
 
+/*
+	Do nothing for the step at all
+*/
+define('SKIP_TAGS', false);
+define('SKIP_REMOVAL', false);
+define('SKIP_RECYCLE', false);
+define('SKIP_ERRORS', false);
+define('SKIP_ORPHAN_QBT', false);
+define('SKIP_ORPHAN_DISK', false);
+
 //-- TESTING
 /*
 	Do nothing but PRINT_RUN, LOG_RUN and/or NOTIFY_RUN; will not pause, remove, recycle, tag, etc
